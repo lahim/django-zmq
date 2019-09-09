@@ -16,8 +16,7 @@ INSTALLED_APPS = [
 ZMQ_PULL_SOCKET = 'tcp://127.0.0.1:5000'
 ZMQ_PUSH_SOCKET = 'tcp://127.0.0.1:5001'
 ZMQ_TASKS = [
-    'jobmanager.tasks.send_email',
-    'jobmanager.tasks.send_text_message',
+    'exampleapp.tasks.send_text_message',
 ]
 ```
 
@@ -40,8 +39,26 @@ task_socket = ctx.socket(zmq.PUSH)
 task_socket.connect('tcp://127.0.0.1:5000')                                                                                                                                                                
 
 task_socket.send_json({ 
-        'task': 'jobmanager.tasks.send_text_message', 
+        'task': 'exampleapp.tasks.send_text_message', 
         'kwargs': {'a': 1, 'b': 2, 'c': 3, 'd': 4}, 
     }) 
+```
 
+## Example:
+
+Below you can find a tasks definition:
+`exampleapp/tasks.py`:
+```python
+def send_text_message(*args, **kwargs):
+    print('Sending text message...')
+    # add your code here for sending text message...
+    print('Text message was sent.')
+```
+
+Here is an example of calling a task from your django app:
+```python
+from djangozmq.zmq.sockets import SocketManager                                                                                                                                                            
+
+sm = SocketManager()                                                                                                                                                                                       
+sm.call_task('exampleapp.tasks.send_text_message', {'foo': 'bar'})                                                                                                                                     
 ```
