@@ -1,4 +1,8 @@
-import importlib
+"""
+Slave connects to the master and pull all incoming data with defined tasks. Next, imports the tasks
+which needs to perform. On receiving a data, it calls the relevant task function with relevant arguments.
+"""
+
 import logging
 import zmq
 
@@ -16,21 +20,8 @@ logger.debug('-' * 120 + '\n>>> ZMQ TASKS <<<\n' + f'{settings.TASKS}\n' + '-' *
 def run():
     while True:
         try:
-            task_data = socket.recv_json()
-            task = task_data.pop('task')
-            task_kwargs = task_data.pop('kwargs')
-
-            logger.debug(f'task from socket: {task}')
-
-            if task in settings.TASKS:
-                func_name = task.split('.')[-1]
-                module_name = '.'.join(task.split('.')[:-1])
-                module = importlib.import_module(module_name)
-                task_fun = getattr(module, func_name)
-                task_fun(**task_kwargs)
-
-                logger.debug(f'task: {task}, kwargs: {task_kwargs}')
-                logger.debug(f'task: {task} done')
+            task = socket.recv_pyobj()
+            task.execute()
         except Exception as err:
             logger.error(err)
 

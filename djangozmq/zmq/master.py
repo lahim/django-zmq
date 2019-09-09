@@ -1,7 +1,7 @@
 import zmq
 import logging
 
-from djangozmq import settings
+from djangozmq import settings, models
 
 logger = logging.getLogger(settings.LOGGER_NAME)
 
@@ -17,7 +17,16 @@ def run():
     while True:
         try:
             task_data = pull_socket.recv_json()
-            push_socket.send_json(task_data)
+            task = task_data.pop('task')
+            task_kwargs = task_data.pop('kwargs')
+
+            if task in settings.TASKS:
+                task = models.Task(name=task)
+                task.set_kwargs(task_kwargs)
+                task.save()
+                push_socket.send_pyobj(task)
+            else:
+                logger.warning(f'Task: {task} is not defined in settings')
         except Exception as err:
             logger.error(err)
 
