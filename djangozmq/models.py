@@ -2,6 +2,7 @@ import uuid
 import enum
 import json
 import importlib
+import time
 
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -10,8 +11,9 @@ from django.utils.translation import gettext_lazy as _
 class TaskStatus(enum.IntEnum):
     FAILED = -1
     NEW = 0
-    IN_PROGRESS = 1
-    COMPLETED = 2
+    QUEUED = 1
+    IN_PROGRESS = 2
+    COMPLETED = 3
 
 
 class BaseModel(models.Model):
@@ -43,9 +45,11 @@ class Task(BaseModel):
         return self.name.split('.')[-1]
 
     def execute(self):
-        if self.status not in [TaskStatus.NEW.value]:
-            return
-        
+        if self.status not in [TaskStatus.QUEUED.value]:
+            raise self.InvalidStatus(f'Task is not in QUEUED status. Current status: {self.status}')
+
+        start_time = time.time()
+
         self.status = TaskStatus.IN_PROGRESS.value
         self.save()
 
@@ -56,7 +60,14 @@ class Task(BaseModel):
         except Exception as err:
             self.status = TaskStatus.FAILED.value
             self.error = str(err)
-            self.save()
         else:
             self.status = TaskStatus.COMPLETED.value
-            self.save()
+
+        self.execution_time = time.time() - start_time
+        self.save()
+
+    def __str__(self):
+        return f'{self.uuid}: {self.name}'
+
+    class InvalidStatus(Exception):
+        pass

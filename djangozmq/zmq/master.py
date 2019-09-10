@@ -16,17 +16,10 @@ def run():
 
     while True:
         try:
-            task_data = pull_socket.recv_json()
-            task = task_data.pop('task')
-            task_kwargs = task_data.pop('kwargs')
-
-            if task in settings.TASKS:
-                task = models.Task(name=task)
-                task.set_kwargs(task_kwargs)
-                task.save()
-                push_socket.send_pyobj(task)
-            else:
-                logger.warning(f'Task: {task} is not defined in settings')
+            task = pull_socket.recv_pyobj()
+            task.status = models.TaskStatus.QUEUED.value
+            task.save()
+            push_socket.send_pyobj(task)
         except Exception as err:
             logger.error(err)
 
