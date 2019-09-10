@@ -30,7 +30,7 @@ ZMQ_TASKS = [
 ./manage.py zmqrunslave
 ```
 
-4. Now, you can send data to the socket as presented below:
+5. Now, you can send data to the socket as presented below:
 ```python
 import zmq 
  
@@ -62,3 +62,24 @@ from djangozmq.zmq.sockets import SocketManager
 sm = SocketManager()                                                                                                                                                                                       
 sm.call_task('exampleapp.tasks.send_text_message', {'foo': 'bar'})                                                                                                                                     
 ```
+
+## Periodic tasks
+
+1. For periodic tasks you need to run django-zmq beat using below command:
+```bash
+./manage.py zmqrunbeat
+```
+
+2. Add periodic tasks into the `settings.py` - example below:
+```python
+...
+ZMQ_PERIODIC_TASKS = [
+    ('exampleapp.tasks.check_all_not_completed_jobs', None, 10),
+]
+```
+
+`ZMQ_PERIODIC_TASKS` is a list of tuple where:
+* 1st element is a task name,
+* 2nd element is a task kwargs,
+* 3rd element is a interval - it's an int value which represents seconds. Interval value means run this task 
+every X-seconds.
