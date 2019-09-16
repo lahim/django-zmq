@@ -1,6 +1,9 @@
 # Django-ZMQ
 Simple integration ZMQ with Django.
 
+[![Build Status](https://travis-ci.org/lahim/django-zmq.svg?branch=master)](https://travis-ci.org/lahim/django-zmq)
+
+
 ## Quick start
 
 1. Add "django-zmq" to your INSTALLED_APPS setting like this:

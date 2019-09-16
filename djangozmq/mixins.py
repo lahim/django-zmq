@@ -7,7 +7,19 @@ class TaskMixin:
         self.kwargs = json.dumps(kwargs)
 
     def get_kwargs(self):
-        return json.loads(self.kwargs)
+        return json.loads(self.kwargs) if self.kwargs else {}
+
+    def set_result(self, result):
+        if not result:
+            return
+
+        if not isinstance(result, dict):
+            result = {'result': result}
+
+        self.result = json.dumps(result)
+
+    def get_result(self):
+        return json.loads(self.result) if self.result else {}
 
     def get_module(self):
         return '.'.join(self.name.split('.')[:-1])
