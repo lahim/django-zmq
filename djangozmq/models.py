@@ -35,6 +35,7 @@ class Task(mixins.TaskMixin, BaseModel):
     error = models.CharField(null=True, blank=True, max_length=255, verbose_name=_('Error'))
     execution_time = models.FloatField(null=True, verbose_name=_('Execution time in seconds'))
     kwargs = models.CharField(null=True, blank=True, max_length=255, verbose_name=_('Task kwargs'))
+    result = models.TextField(null=True, blank=True, verbose_name=_('Task results'))
 
     def on_error(self, err):
         logger.warning(f'Task: {self.name} was not finished - something went wrong. Details: {str(err)}')
@@ -44,6 +45,7 @@ class Task(mixins.TaskMixin, BaseModel):
     def on_success(self, result):
         logger.info(f'Task: {self.name} was finished with success.')
         self.status = TaskStatus.COMPLETED.value
+        self.set_result(result)
 
     def post_call(self):
         pass
