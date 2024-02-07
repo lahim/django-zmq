@@ -1,2 +1,2 @@
-Django==2.2.5
+Django==3.2.24
 pyzmq==18.1.0
